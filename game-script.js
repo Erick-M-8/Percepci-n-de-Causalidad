@@ -7,11 +7,11 @@ document.addEventListener("DOMContentLoaded", function () {  // Esperar a que to
 
     //===============================  CONFIGURACIÓN DEL EXPERIMENTO  ===============================
     // Constantes de probabilidad
-    let HUMANDIE = 6;       // La probailidad de que el humano provoque un CED de 1/HUMANDIE
-    let MACHINEDIE = 18;    // La probailidad de que la máquina haga un CEI es de 1/MACHINDIE (Sujeto a número de disparos en el intervalo anterior)
+    let HUMANDIE = 10;       // La probailidad de que el humano provoque un CED de 1/HUMANDIE
+    let MACHINEDIE = 10;    // La probailidad de que la máquina haga un CEI es de 1/MACHINDIE (Sujeto a número de disparos en el intervalo anterior)
 
     // Demora
-    let demora = [100,200,300];
+    let demora = [0];
     //===============================================================================================
 
     
@@ -45,6 +45,7 @@ document.addEventListener("DOMContentLoaded", function () {  // Esperar a que to
     let canTriggerCE = true;        // Solo si es true se pueden disparar CEI/CED nuevos
     let answerLocked = false;       // Bloquea los botones de respuesta después de un click
     let acceptingClicks = true;     // Solo si es true se consideran los clics al botón central
+    let gameFinished = false;       // Juego finalizado indica si se guarda FDJ o NFDJ
 
     // Contadores de interacción
     let shotCount = 0;        // Disparos en el bloque actual
@@ -339,7 +340,7 @@ document.addEventListener("DOMContentLoaded", function () {  // Esperar a que to
         resultsHead.style.color = isCorrect? "green":"red";
         resultsText.textContent = getResultText(isCorrect, average, score);
 
-        if(score < 150){
+        if(score < 1){
             setTimeout(() => {
                 canTriggerCE = true;
                 acceptingClicks = true;
@@ -354,7 +355,7 @@ document.addEventListener("DOMContentLoaded", function () {  // Esperar a que to
                 resultsHead.innerHTML = "<br>Gracias!! ❤️";
                 resultsHead.style.color = "#e74998ff";
                 setTimeout(() => {
-                    window.close();
+                    window.location.href = "index.html";
                 }, 2000);
             }, 2500);
         }    
@@ -388,14 +389,17 @@ document.addEventListener("DOMContentLoaded", function () {  // Esperar a que to
     // ==============================
 
     window.addEventListener('beforeunload', () => {
-        saveNextLine(['PTM', machineTryCount]);
+        if (gameFinished) return; //Si el participante finalizo el juego no sé ejecuta el guardado de NFDJ aunque cierre la ventana
         saveNextLine(['NFDJ', new Date().toLocaleString()]);
+        saveNextLine(['PTM', machineTryCount]);
+        syncLocalBackups();
         localStorage.removeItem('currentUserId');
     });
     
     function saveFinalData(){
+        gameFinished = true;
         saveNextLine(['FDJ', new Date().toLocaleString()]);
-        saveNextLine(['PTM', machineTryCount]); // Pulsos totales máquinaus
+        saveNextLine(['PTM', machineTryCount]); // Pulsos totales máquina
         syncLocalBackups();
     }
 
