@@ -12,90 +12,8 @@
   <link rel="preload" as="image" href="img/unam.png">
   <link rel="preload" as="image" href="img/paloma.png">
   <link rel="preload" as="image" href="img/poli.png">
-  <style>
-    /* ====== Loader responsive ====== */
-    :root{
-      /* Tamaños responsivos con clamp(min, preferido, max) */
-      --bar-min-h: clamp(22px, 3.2vh, 36px);   /* altura mínima de la barra */
-      --bar-max-h: clamp(55px, 7.5vh, 90px);   /* altura máxima (pico animación) */
-      --bar-w:     clamp(10px, 0.9vw, 16px);   /* ancho de cada barra */
-      --bar-gap:   clamp(8px, 1.2vw, 18px);    /* separación entre barras */
-      --loader-h:  clamp(60px, 10vh, 120px);   /* altura total del loader */
-      --text-size: clamp(18px, 2.2vw, 36px);   /* tamaño del texto "CARGANDO" */
-      --text-space: clamp(20px, 2.2vh, 40px);  /* espacio arriba del texto */
-    }
-
-    #loadingScreen {
-      position: fixed;
-      inset: 0;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      z-index: 9999;
-      transition: opacity 0.5s ease-out, visibility 0.5s ease-out;
-    }
-
-    #loadingScreen.hidden {
-      opacity: 0;
-      visibility: hidden;
-    }
-
-    .loader-wave {
-      display: flex;
-      gap: var(--bar-gap);
-      align-items: flex-end;
-      height: var(--loader-h);
-    }
-
-    .wave-bar {
-      width: var(--bar-w);
-      background: white;
-      border-radius: 999px;
-      animation: wave-animation 1.2s ease-in-out infinite;
-    }
-
-    .wave-bar:nth-child(1) { animation-delay: 0s; }
-    .wave-bar:nth-child(2) { animation-delay: 0.1s; }
-    .wave-bar:nth-child(3) { animation-delay: 0.2s; }
-    .wave-bar:nth-child(4) { animation-delay: 0.3s; }
-    .wave-bar:nth-child(5) { animation-delay: 0.4s; }
-
-    @keyframes wave-animation {
-      0%, 100% {
-        height: var(--bar-min-h);
-        opacity: 0.6;
-      }
-      50% {
-        height: var(--bar-max-h);
-        opacity: 1;
-      }
-    }
-
-    .loading-text {
-      color: white;
-      margin-top: var(--text-space);
-      font-size: var(--text-size);
-      font-family: 'Poppins', sans-serif;
-      font-weight: 600;
-      letter-spacing: 2px;
-      animation: fade-text 1.5s ease-in-out infinite;
-    }
-
-    @keyframes fade-text {
-      0%, 100% { opacity: 0.6; }
-      50% { opacity: 1; }
-    }
-
-    /* Mantener oculto el contenido hasta que cargue */
-    body.loading .container { opacity: 0; }
-    body:not(.loading) .container { opacity: 1; transition: opacity 0.5s ease-in; }
-
-  </style>
 </head>
 <body class="loading">
-  <!-- Loading Screen -->
   <div id="loadingScreen">
     <div class="loader-wave">
       <div class="wave-bar"></div>
@@ -124,19 +42,16 @@
         <input type="number" id="age" class="form-control" min="1" max="120">
       </div>
 
-      <div class="grupo-container">
-        <label class="section-title">Selecciona un grupo:</label>
-        <div class="groups-grid">
-          <div class="group-card" data-group="unam">
-            <img src="img/unam.png" class="card-img-top" alt="UNAM">
-          </div>
-          <div class="group-card" data-group="paloma">
-            <img src="img/paloma.png" class="card-img-top" alt="Paloma">
-          </div>
-          <div class="group-card" data-group="ipn">
-            <img src="img/poli.png" class="card-img-top" alt="IPN">
-          </div>
-        </div>
+      <div class="form-group">
+        <label for="universidad" class="section-title">Universidad:</label>
+        <input type="text" id="universidad" class="form-control">
+      </div>
+
+      <div class="warning-box">
+        <div class="warning-icon">⚠️</div>
+        <h3>Importante</h3>
+        <p>⛔ <strong>NO</strong> minimices ni cambies de ventana una vez que inicies el experimento, de lo contrario <strong>será invalidado</strong>.</p>
+        <p>👀 Mantén tu atención en la pantalla durante toda la sesión.</p>
       </div>
 
       <button type="button" id="startBtn" disabled>INICIAR</button>

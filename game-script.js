@@ -7,8 +7,8 @@ document.addEventListener("DOMContentLoaded", function () {  // Esperar a que to
 
     //===============================  CONFIGURACIÓN DEL EXPERIMENTO  ===============================
     // Constantes de probabilidad
-    let HUMANDIE = 10;       // La probailidad de que el humano provoque un CED de 1/HUMANDIE
-    let MACHINEDIE = 10;    // La probailidad de que la máquina haga un CEI es de 1/MACHINDIE (Sujeto a número de disparos en el intervalo anterior)
+    let HUMANDIE = 20;       // La probailidad de que el humano provoque un CED de 1/HUMANDIE
+    let MACHINEDIE = 20;    // La probailidad de que la máquina haga un CEI es de 1/MACHINDIE (Sujeto a número de disparos en el intervalo anterior)
 
     // Demora
     let demora = [0];
@@ -74,6 +74,25 @@ document.addEventListener("DOMContentLoaded", function () {  // Esperar a que to
     let punishReinforceTime = ['RB'];
 
     // ==============================
+    // 0 TOLERANCIA A CAMBIOS DE PESTAÑA
+    // ==============================
+    let invalidated = false;
+
+    document.addEventListener('visibilitychange', () => {
+        if (document.hidden && !invalidated && !gameFinished) {
+            invalidated = true;
+            saveNextLine(['NFDJ', new Date().toLocaleString()]);
+            saveNextLine(['PTM', machineTryCount]);
+            syncLocalBackups();
+            localStorage.removeItem('currentUserId');
+        } else if (!document.hidden && invalidated){
+            // Usuario regresó después de salir
+            alert("Saliste del experimento. \n Tu sesión fue invalidada.");
+            window.location.href = "index.html"; // Redirigir
+        }
+    });
+
+    // ==============================
     // TIEMPO
     // ==============================
     function getTrainingTime(){
@@ -91,7 +110,7 @@ document.addEventListener("DOMContentLoaded", function () {  // Esperar a que to
         //showScreen(gameScreen);
     }
 
-    setTimeout(iniciarJuego, 9000); // Arranca el juego a los 9 segundos
+    setTimeout(iniciarJuego, 30000); // Arranca el juego a los 30 segundos
 
     // ==============================
     // PROBABILIDAD
@@ -114,7 +133,7 @@ document.addEventListener("DOMContentLoaded", function () {  // Esperar a que to
         machineTryCount ++;
         const p = Math.floor(Math.random() * MACHINEDIE) + 1; // La probailidad de que la máquina haga un CEI es de 1/MACHINDIE
         // console.log(`Calculo p_machine: ${p}`)
-        if (p === 2) { 
+        if (p === 1||p===5||p===8) { 
             CEI();
         }
     }
@@ -310,13 +329,13 @@ document.addEventListener("DOMContentLoaded", function () {  // Esperar a que to
             return `Tienes un ${average}% de aciertos`;
         }
 
-        if (score >= 150) {
+        if (score >= 100) {
             return `Tu porcentaje de aciertos total fue del ${average}%`;
         }
 
         return isCorrect ?
-            `Tu porcentaje de aciertos aumentó al ${average}%` :
-            `Tu porcentaje de aciertos bajó al ${average}%`;
+            `Tu porcentaje de aciertos es de ${average}%` :
+            `Tu porcentaje de aciertos es de ${average}%`;
     }
 
     function showResults(isCorrect){
@@ -340,7 +359,7 @@ document.addEventListener("DOMContentLoaded", function () {  // Esperar a que to
         resultsHead.style.color = isCorrect? "green":"red";
         resultsText.textContent = getResultText(isCorrect, average, score);
 
-        if(score < 1){
+        if(score < 100){
             setTimeout(() => {
                 canTriggerCE = true;
                 acceptingClicks = true;
@@ -352,7 +371,7 @@ document.addEventListener("DOMContentLoaded", function () {  // Esperar a que to
             setTimeout(() => {
                 saveFinalData();
                 resultsText.textContent = "";
-                resultsHead.innerHTML = "<br>Gracias!! ❤️";
+                resultsHead.innerHTML = "<br>¡¡Gracias por participar!! Por favor espera a que la pagina cierre ❤️";
                 resultsHead.style.color = "#e74998ff";
                 setTimeout(() => {
                     window.location.href = "index.html";
@@ -395,21 +414,7 @@ document.addEventListener("DOMContentLoaded", function () {  // Esperar a que to
         syncLocalBackups();
         localStorage.removeItem('currentUserId');
     });
-    document.addEventListener('visibilitychange', () => {
-        if (document.hidden) {
-            setTimeout(() => {
-                if (document.hidden && !gameFinished) {
-                    // Si sigue oculto después de 30s, terminar juego
-                    saveNextLine(['NFDJ', new Date().toLocaleString()]);
-                    saveNextLine(['PTM', machineTryCount]);
-                    syncLocalBackups();
-                    localStorage.removeItem('currentUserId');
-                    window.location.href = 'index.html';
-                }
-            }, 30000);
-        } 
-    });
-
+    
     function saveFinalData(){
         gameFinished = true;
         saveNextLine(['FDJ', new Date().toLocaleString()]);
@@ -468,6 +473,7 @@ document.addEventListener("DOMContentLoaded", function () {  // Esperar a que to
         switch (typeof e.data === "object" ? e.data.type : e.data){
             case 'reset_done':
                 gameStartTime = performance.now();
+                i = 0; //Reiniciar el índice de intervalos de 10s, asi se evita que se occuarran CE antes de tiempo
                 showScreen(gameScreen);
                 saveNextLine(['IDJ', new Date().toLocaleString()]);
                 break;
